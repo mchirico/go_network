@@ -17,11 +17,11 @@ func TestSSH_Example(t *testing.T) {
 	c := yamlpkg.Config{}
 	err := c.Read(file)
 	if err != nil {
-		t.Logf("We're not on a system that can test ssh.")
+		t.Logf("We're not on a system that can test ssh.: %v\n", err)
 		return
 	}
 
-	idx := 2
+	idx := 4
 
 	s := SSH{}
 	s.Password = c.Yaml[idx].Config.Password
@@ -40,6 +40,12 @@ func TestSSH_Example(t *testing.T) {
 
 	fmt.Println(c.Yaml[idx].Config.Repeats)
 
-	s.CmdServers()
+	for idx, v := range c.Yaml[idx].Config.IP {
+		s.Server = v
+		fmt.Println(idx, v)
+		s.CmdServers()
+	}
+
+	//s.CmdServers()
 
 }
