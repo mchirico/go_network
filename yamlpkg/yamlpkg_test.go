@@ -1,6 +1,7 @@
 package yamlpkg
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -32,6 +33,7 @@ func TestReadWrite(t *testing.T) {
 	c.Yaml = gg
 
 	//c.Yaml[0].Config.Password
+	fmt.Println(c.Yaml[1].Config.Repeats)
 
 	c.Write(file)
 

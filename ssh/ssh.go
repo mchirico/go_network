@@ -22,6 +22,9 @@ type SSH struct {
 	SSHPubKey string
 	CMD       string
 	File      string
+	client    *ssh.Client
+	config    *ssh.ClientConfig
+	Repeats   int
 }
 
 func (s *SSH) GetHostKey() (ssh.PublicKey, error) {
@@ -103,17 +106,27 @@ func GetConfigForPassword(user string, password string) *ssh.ClientConfig {
 	return config
 }
 
-func (s *SSH) Exec(results chan string) {
+func (s *SSH) Config() {
 
 	var config *ssh.ClientConfig
-
 	if s.UseSSHkey {
-		config = GetConfigForKey(s.User,s.SSHPubKey)
+		config = GetConfigForKey(s.User, s.SSHPubKey)
 	} else {
 		config = GetConfigForPassword(s.User, s.Password)
 	}
 
 	client, err := ssh.Dial("tcp", s.Server, config)
+	if err != nil {
+		log.Fatal("Failed to dial: ", err)
+	}
+	s.client = client
+	s.config = config
+
+}
+
+func (s *SSH) Exec(results chan string) {
+
+	client, err := ssh.Dial("tcp", s.Server, s.config)
 	if err != nil {
 		log.Fatal("Failed to dial: ", err)
 	}
@@ -128,13 +141,12 @@ func (s *SSH) Exec(results chan string) {
 	}
 	defer session.Close()
 
-	// Once a Session is created, you can execute a single command on
-	// the remote side using the Run method.
 	var b bytes.Buffer
 	session.Stdout = &b
 	if err := session.Run(s.CMD); err != nil {
 		log.Printf("Failed to run: %v" + err.Error())
 	}
+
 	results <- b.String()
 }
 
@@ -142,21 +154,18 @@ func (s *SSH) Exec(results chan string) {
 
 func (s *SSH) CmdServers() {
 
-	results := make(chan string, 0)
+	s.Config()
 
-	go s.Exec(results)
-	// Here's where you would use multiple commands
-	//go exec(user, server, "date", results)
-
-	data := <-results
-	if len(data) > 10 {
-		fmt.Println(s.Server)
-		Append(s.File, data)
+	for i := 0; i < s.Repeats; i++ {
+		results := make(chan string, 0)
+		go s.Exec(results)
+		data := <-results
+		if len(data) > 10 {
+			fmt.Println(s.Server)
+			Append(s.File, data)
+		}
+		close(results)
 	}
-	//fmt.Println(<-results)
-
-	close(results)
-
 }
 
 func Append(file string, data string) {
