@@ -90,3 +90,12 @@ func (c *Config) SetDefault() {
 	c.Yaml = gg
 
 }
+
+func (c *Config) ListGroups() []string {
+	groups := []string{}
+	for _,v := range c.Yaml {
+		groups = append(groups,v.Group)
+	}
+	return groups
+
+}

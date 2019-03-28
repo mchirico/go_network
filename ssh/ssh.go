@@ -14,17 +14,18 @@ import (
 )
 
 type SSH struct {
-	Host      string
-	User      string
-	Password  string
-	Server    string
-	UseSSHkey bool
-	SSHPubKey string
-	CMD       string
-	File      string
-	client    *ssh.Client
-	config    *ssh.ClientConfig
-	Repeats   int
+	Host        string
+	User        string
+	Password    string
+	Server      string
+	UseSSHkey   bool
+	SSHPubKey   string
+	CMD         string
+	File        string
+	client      *ssh.Client
+	config      *ssh.ClientConfig
+	Repeats     int
+	StatusAbort bool
 }
 
 func (s *SSH) GetHostKey() (ssh.PublicKey, error) {
@@ -87,6 +88,7 @@ func GetConfigForKey(user string, keyfile string) *ssh.ClientConfig {
 
 	// Ignore key validation
 	config.HostKeyCallback = ssh.InsecureIgnoreHostKey()
+
 	return config
 }
 
@@ -117,8 +119,11 @@ func (s *SSH) Config() {
 
 	client, err := ssh.Dial("tcp", s.Server, config)
 	if err != nil {
-		log.Fatal("Failed to dial: ", err)
+		log.Println("Failed to dial: ", err)
+		s.StatusAbort = true
+		return
 	}
+	s.StatusAbort = false
 	s.client = client
 	s.config = config
 
@@ -126,9 +131,16 @@ func (s *SSH) Config() {
 
 func (s *SSH) Exec(results chan string) {
 
+	if s.StatusAbort == true {
+		results <- "Abort"
+		return
+	}
+
 	client, err := ssh.Dial("tcp", s.Server, s.config)
 	if err != nil {
-		log.Fatal("Failed to dial: ", err)
+		log.Println("Failed to dial2: ", err)
+		results <- "Abort Dial2"
+		return
 	}
 
 	defer client.Close()
@@ -137,7 +149,7 @@ func (s *SSH) Exec(results chan string) {
 	// represented by a Session.
 	session, err := client.NewSession()
 	if err != nil {
-		log.Fatal("Failed to create session: ", err)
+		log.Println("Failed to create session: ", err)
 	}
 	defer session.Close()
 

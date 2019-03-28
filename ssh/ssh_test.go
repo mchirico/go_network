@@ -21,7 +21,7 @@ func TestSSH_Example(t *testing.T) {
 		return
 	}
 
-	idx := 4
+	idx := 5
 
 	s := SSH{}
 	s.Password = c.Yaml[idx].Config.Password
@@ -37,6 +37,8 @@ func TestSSH_Example(t *testing.T) {
 	} else {
 		s.Repeats = c.Yaml[idx].Config.Repeats
 	}
+
+	fmt.Println(c.Yaml[idx].Group)
 
 	fmt.Println(c.Yaml[idx].Config.Repeats)
 

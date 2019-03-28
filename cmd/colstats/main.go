@@ -21,7 +21,7 @@ func main() {
 		return
 	}
 
-	idx := 4
+	idx := 3
 
 	s := ssh.SSH{}
 	s.Password = c.Yaml[idx].Config.Password

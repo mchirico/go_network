@@ -14,7 +14,7 @@ matrix:
     - go install github.com/axw/gocov/gocov
     - go get -u github.com/mchirico/date/parse
     - go get gopkg.in/yaml.v2
-    = go get golang.org/x/crypto/ssh
+    - go get golang.org/x/crypto/ssh
     before_install:
     #- openssl aes-256-cbc -k "$super_secret_password" -in fixtures/data.enc -out fixtures/data -d
     #- for i in $(ls fixtures/fixtures_*.enc); do openssl aes-256-cbc -k "$super_secret_password" -in ${i} -out ${i%%.*} -d; done
