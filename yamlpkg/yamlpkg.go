@@ -10,14 +10,14 @@ import (
 )
 
 type y struct {
-	IP       []string `yaml:"ips"`
-	Cmd      string   `yaml:"cmd"`
-	Username string   `yaml:"username"`
-	Password string   `yaml:"password"`
-	UseSSHkey   bool   `yaml:"usesshkey"`
-	SSHPubKey string `yaml:"sshpubkeyfile"`
-	FileOut  string   `yaml:"fileOut"`
-	Repeats  int       `yaml:"commandrepeats"`
+	IP        []string `yaml:"ips"`
+	Cmd       string   `yaml:"cmd"`
+	Username  string   `yaml:"username"`
+	Password  string   `yaml:"password"`
+	UseSSHkey bool     `yaml:"usesshkey"`
+	SSHPubKey string   `yaml:"sshpubkeyfile"`
+	FileOut   string   `yaml:"fileOut"`
+	Repeats   int      `yaml:"commandrepeats"`
 }
 
 type group struct {
@@ -81,7 +81,7 @@ func (c *Config) SetDefault() {
 		true,
 		"id_ed25519",
 		"fileOut.txt",
-	2}
+		2}
 	g := group{"Group0", y}
 	g1 := group{"Group1", y}
 
@@ -93,9 +93,35 @@ func (c *Config) SetDefault() {
 
 func (c *Config) ListGroups() []string {
 	groups := []string{}
-	for _,v := range c.Yaml {
-		groups = append(groups,v.Group)
+	for _, v := range c.Yaml {
+		groups = append(groups, v.Group)
 	}
 	return groups
+
+}
+
+func WriteYamlTest(file string) {
+	c := Config{}
+
+	ips := []string{"0.0.0.0", "0.0.0.1"}
+
+	y := y{ips, "uptime;hostname;iptables -nvL",
+		"Tom",
+		"password123",
+		true,
+		"id_ed25519",
+		"file0",
+		2}
+	g := group{"Group0", y}
+	g1 := group{"Group1", y}
+
+	gg := []group{g, g1}
+
+	c.Yaml = gg
+
+	//c.Yaml[0].Config.Password
+	//fmt.Println(c.Yaml[1].Config.Repeats)
+
+	c.Write(file)
 
 }
