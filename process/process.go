@@ -58,7 +58,7 @@ func OptionalFn(f *Thing) error {
 	return nil
 }
 
-func OptionalReturnType(t string) func(f *Thing) error {
+func OptionalFunctionThing(t string) func(f *Thing) error {
 	return func(f *Thing) error {
 		f.inputType = t
 		return nil
